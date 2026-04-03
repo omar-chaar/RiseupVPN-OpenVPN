@@ -80,6 +80,26 @@ fi
 if [ -n "${CURL_NO_SILENT+x}" ]; then echo "curl riseup servers list from https://api.black.riseup.net/3/config/eip-service.json"; fi
 # shellcheck disable=SC2086
 gateways=$(curl ${CURL_VERBOSE:+-v} ${CURL_NO_SILENT--sS} --fail --connect-timeout 10 --retry 3 -H "Accept: application/json" https://api.black.riseup.net/3/config/eip-service.json | jq '.gateways')
+location_arg=""
+prev_arg=""
+for arg in "$@"; do
+    if [[ "$prev_arg" == "--location" ]]; then
+        location_arg="$arg"
+        break
+    fi
+    prev_arg="$arg"
+done
+
+if [[ -n "$location_arg" ]]; then
+    echo -e "\e[33;3mFiltering servers by locations: $location_arg\e[0m"
+    gateways=$(echo "$gateways" | jq --arg locations "$location_arg" '
+        ($locations
+         | split(",")
+         | map(gsub("^\\s+|\\s+$"; ""))
+         | map(select(length > 0))) as $wanted
+        | map(select(.location as $loc | any($wanted[]; . == $loc)))
+    ')
+fi
 
 for gateway_b64 in $(echo "$gateways" | jq -r '.[] | @base64'); do
     gateway=$(echo "$gateway_b64" | base64 -d)
