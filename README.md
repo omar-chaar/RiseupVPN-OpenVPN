@@ -21,6 +21,7 @@ curl ipinfo.io
 | `-vvv`            | Very verbose mode (enables `set -x` for full debugging output).                                                |
 | `--no-ipv6`       | Explicitly disables IPv6 in the generated OpenVPN configuration. Required if IPv6 is disabled on your host.    |
 | `--no-dns-leak`   | Add up/down scripts to avoid using your ISP's DNS servers (DNS queries go through the tunnel anyway).          |
+| `--list-locations`   | Shows avaliable locations.          |
 
 ## What is RiseupVPN ?
 

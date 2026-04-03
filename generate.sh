@@ -70,6 +70,12 @@ up "/usr/bin/env bash -c '\''/etc/openvpn/update-resolv-conf $* || /etc/openvpn/
 down "/usr/bin/env bash -c '\''/etc/openvpn/update-resolv-conf $* || /etc/openvpn/down.sh $*'\''"' >>$OVPN_CONF
 fi
 
+if [[ "$ARGS" = *" --list-locations "* ]]; then
+    echo -e "\e[33;3mAvailable locations:\e[0m"
+    curl ${CURL_VERBOSE:+-v} ${CURL_NO_SILENT--sS} --fail --connect-timeout 10 --retry 3 -H "Accept: application/json" https://api.black.riseup.net/3/config/eip-service.json | jq -r '.gateways[] | .location' | sort -u
+    exit 0
+fi
+
 # Get the VPN IP list, and add them to openvpn conf
 if [ -n "${CURL_NO_SILENT+x}" ]; then echo "curl riseup servers list from https://api.black.riseup.net/3/config/eip-service.json"; fi
 # shellcheck disable=SC2086
